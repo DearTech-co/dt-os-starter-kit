@@ -2,6 +2,8 @@
 
 This kit turns Claude (or ChatGPT) into an assistant that actually knows your business. It is a local, single-user context layer: plain markdown notes your AI reads instead of asking you again.
 
+**Get the kit:** with git, `git clone https://github.com/DearTech-co/dt-os-starter-kit.git`. Without git, open the repo page, click the green **Code** button, choose **Download ZIP**, and unzip it. Then follow one of the paths below.
+
 ## Path A - Claude Desktop (recommended, no code)
 
 1. **Install the skills.** In the Claude web UI (claude.ai), go to Skills and upload the three skill files directly: `.claude/skills/start-dt/SKILL.md`, `.claude/skills/ingest/SKILL.md`, and `.claude/skills/health/SKILL.md`. A single .md file whose YAML header has a name and description is a valid skill, so no zip is needed. (Custom skills upload on the web only, then they sync to the Desktop app.)

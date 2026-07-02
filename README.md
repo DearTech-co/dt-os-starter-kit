@@ -15,7 +15,7 @@ It is deliberately the smallest version that proves the idea: one laptop, one pe
 
 ## Quick start
 
-1. Clone this repo: `git clone https://github.com/DearTech-co/dt-os-starter-kit.git`
+1. Get the kit. With git: `git clone https://github.com/DearTech-co/dt-os-starter-kit.git`. Without git: click the green **Code** button above and choose **Download ZIP**, then unzip it.
 2. Open the folder in Claude Code, or connect it in Claude Desktop with the Filesystem connector.
 3. Run `/start-dt` and answer a few questions. Your AI now knows your business.
 
