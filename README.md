@@ -19,6 +19,8 @@ It is deliberately the smallest version that proves the idea: one laptop, one pe
 2. Open the folder in Claude Code, or connect it in Claude Desktop with the Filesystem connector.
 3. Run `/start-dt` and answer a few questions. Your AI now knows your business.
 
+Not touching GitHub at all? Copy the one-shot prompt in [`BOOTSTRAP-PROMPT.md`](BOOTSTRAP-PROMPT.md), paste it into your connected AI (Claude Desktop with a folder connected, or Claude Code), and it builds the whole vault for you.
+
 Full setup, including Claude Desktop and ChatGPT, is in [`SETUP.md`](SETUP.md).
 
 ## Where this stops (and what is next)
