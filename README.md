@@ -28,7 +28,8 @@ Full setup, including Claude Desktop and ChatGPT, is in [`SETUP.md`](SETUP.md).
 The skills are what add the `/start-dt`, `/ingest`, and `/health` commands.
 
 - **Claude Code:** nothing to do. They load automatically from `.claude/skills/`.
-- **Claude Desktop, claude.ai, or Codex:** upload them once. The `.claude` folder is hidden and awkward to reach, so use the visible copies in the [`skills/`](skills) folder: download [`start-dt.md`](skills/start-dt.md), [`ingest.md`](skills/ingest.md), and [`health.md`](skills/health.md), then at claude.ai open Skills and upload each one.
+- **Claude Desktop or claude.ai:** upload them once. The `.claude` folder is hidden and awkward to reach, so use the visible copies in the [`skills/`](skills) folder: download [`start-dt.md`](skills/start-dt.md), [`ingest.md`](skills/ingest.md), and [`health.md`](skills/health.md), then at claude.ai open Skills and upload each one.
+- **Codex or other tools that read the SKILL.md format:** use those same visible `skills/*.md` files, loaded however that tool installs skills.
 
 ## Where this stops (and what is next)
 

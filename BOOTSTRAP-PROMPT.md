@@ -6,7 +6,7 @@ No git, no download. Connect an empty folder to your AI (Claude Desktop with the
 
 You are setting me up with the DT-OS Starter Kit, a local context OS, in the folder you can write to. Create every file listed below at its exact path, making any folders needed. Copy each file's contents exactly as given between its FILE markers. Do not edit, shorten, or add anything. When every file exists, do two things:
 
-1. Tell me how to load the three skills. If I am in Claude Code, they are already active from `.claude/skills/`. If I am in Claude Desktop, claude.ai, or Codex, tell me to upload the three files in the visible `skills/` folder (`skills/start-dt.md`, `skills/ingest.md`, `skills/health.md`) at claude.ai under Skills. Point me to the visible `skills/` folder, not the hidden `.claude` folder.
+1. Tell me how to load the three skills. If I am in Claude Code, they are already active from `.claude/skills/`. If I am in Claude Desktop or claude.ai, tell me to upload the three files in the visible `skills/` folder (`skills/start-dt.md`, `skills/ingest.md`, `skills/health.md`) at claude.ai under Skills, not the hidden `.claude` folder. If I use Codex or another tool that reads the SKILL.md format, tell me to use those same visible files with that tool's skill setup.
 2. Tell me to run /start-dt to fill in my business.
 
 ===== FILE: CLAUDE.md =====
@@ -419,4 +419,4 @@ Report as three grouped lists: ERRORS (missing frontmatter, broken links), WARNI
 
 ------------------------------------------------------------------------
 
-That is the whole kit. To load the three skills: Claude Code has them automatically from `.claude/skills/`. In Claude Desktop, claude.ai, or Codex, upload the visible files `skills/start-dt.md`, `skills/ingest.md`, and `skills/health.md` (not the hidden `.claude` folder) at claude.ai under Skills. Then run /start-dt.
+That is the whole kit. To load the three skills: Claude Code has them automatically from `.claude/skills/`. In Claude Desktop or claude.ai, upload the visible files `skills/start-dt.md`, `skills/ingest.md`, and `skills/health.md` (not the hidden `.claude` folder) at claude.ai under Skills. Codex and other SKILL.md tools use those same visible files. Then run /start-dt.
