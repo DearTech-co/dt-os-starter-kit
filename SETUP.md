@@ -6,7 +6,7 @@ This kit turns Claude (or ChatGPT) into an assistant that actually knows your bu
 
 ## Path A - Claude Desktop (recommended, no code)
 
-1. **Install the skills.** In the Claude web UI (claude.ai), go to Skills and upload the three skill files directly: `.claude/skills/start-dt/SKILL.md`, `.claude/skills/ingest/SKILL.md`, and `.claude/skills/health/SKILL.md`. A single .md file whose YAML header has a name and description is a valid skill, so no zip is needed. (Custom skills upload on the web only, then they sync to the Desktop app.)
+1. **Install the skills.** In the Claude web UI (claude.ai), go to Skills and upload the three skill files from the visible `skills/` folder: `skills/start-dt.md`, `skills/ingest.md`, and `skills/health.md`. Use these, not the copies inside the hidden `.claude/` folder, which is awkward to reach. A single .md file whose YAML header has a name and description is a valid skill, so no zip is needed. Custom skills upload on the web only, then they sync to the Desktop app.
 2. **Connect the vault.** In Claude Desktop, add the Filesystem connector and point it at this folder. Claude can now read your notes.
 3. **Run `/start-dt`.** It interviews you and fills in your business notes. Done.
 

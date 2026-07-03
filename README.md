@@ -23,6 +23,13 @@ Not touching GitHub at all? Copy the one-shot prompt in [`BOOTSTRAP-PROMPT.md`](
 
 Full setup, including Claude Desktop and ChatGPT, is in [`SETUP.md`](SETUP.md).
 
+## Loading the 3 skills
+
+The skills are what add the `/start-dt`, `/ingest`, and `/health` commands.
+
+- **Claude Code:** nothing to do. They load automatically from `.claude/skills/`.
+- **Claude Desktop, claude.ai, or Codex:** upload them once. The `.claude` folder is hidden and awkward to reach, so use the visible copies in the [`skills/`](skills) folder: download [`start-dt.md`](skills/start-dt.md), [`ingest.md`](skills/ingest.md), and [`health.md`](skills/health.md), then at claude.ai open Skills and upload each one.
+
 ## Where this stops (and what is next)
 
 This runs on one laptop, for one person, and it only knows what you put in it. Nothing captures automatically in the background, nothing keeps itself current, and it cannot reach your team or your other tools. That is on purpose.

@@ -4,9 +4,9 @@ No git, no download. Connect an empty folder to your AI (Claude Desktop with the
 
 ------------------------------------------------------------------------
 
-You are setting me up with the DT-OS Starter Kit, a local context OS, in the folder you can write to. Create every file listed below at its exact path, making any folders needed (`business/`, `ops/`, `memory/`, and `.claude/skills/...`). Copy each file's contents exactly as given between its FILE markers. Do not edit, shorten, or add anything. When every file exists, do two things:
+You are setting me up with the DT-OS Starter Kit, a local context OS, in the folder you can write to. Create every file listed below at its exact path, making any folders needed. Copy each file's contents exactly as given between its FILE markers. Do not edit, shorten, or add anything. When every file exists, do two things:
 
-1. If I am in Claude Code, tell me the three skills in `.claude/skills/` are ready to use. If I am in Claude Desktop, tell me to upload the three SKILL.md files you just created (start-dt, ingest, health) at claude.ai under Skills, because Desktop loads skills from the web, not from the folder.
+1. Tell me how to load the three skills. If I am in Claude Code, they are already active from `.claude/skills/`. If I am in Claude Desktop, claude.ai, or Codex, tell me to upload the three files in the visible `skills/` folder (`skills/start-dt.md`, `skills/ingest.md`, `skills/health.md`) at claude.ai under Skills. Point me to the visible `skills/` folder, not the hidden `.claude` folder.
 2. Tell me to run /start-dt to fill in my business.
 
 ===== FILE: CLAUDE.md =====
@@ -322,6 +322,101 @@ Report as three grouped lists: ERRORS (missing frontmatter, broken links), WARNI
 
 ===== END FILE: .claude/skills/health/SKILL.md =====
 
+===== FILE: skills/start-dt.md =====
+---
+name: start-dt
+description: Set up the DT-OS Starter Kit from scratch by interviewing the user, then filling in their business notes. Use when the user says "start-dt", "help me set this up", or "/start-dt".
+---
+
+# /start-dt
+
+Get the user from empty vault to a working context layer in one sitting. Interview them, then write their real answers into the seed notes. Ask one question at a time.
+
+## Steps
+
+1. **Confirm the connection.** Check you can read the notes under `business/`. If you cannot, tell the user to connect the vault first (see `SETUP.md`) and stop.
+2. **Interview, one question at a time**, and after each answer write it into the matching note using the `node_template.md` schema:
+   - "In one sentence, what does your business do, and for whom?" -> `business/what-we-do.md`
+   - "Who is your ideal customer, and what is the one problem they would pay to remove?" -> `business/who-we-serve.md`
+   - "What do you sell, and what does it cost?" -> `business/offers-pricing.md`
+   - "How do you like to sound, and what words do you never use?" -> `business/voice-and-tone.md`
+   - "What are your two or three most-repeated processes?" -> `ops/how-we-do-things.md`
+   - "What tools does the business run on?" -> `ops/tools-we-use.md`
+3. **Replace ALL the template scaffolding with their real answers:** the `> Fill this in:` line, the bracketed slots like `[outcome]`, and any `Example:` line. Keep the frontmatter and set `last_updated` to today. A finished note should read as their real business, with no template text left.
+4. **Log it.** Add `- <today>: Completed start-dt setup.` as a new line at the TOP of the entries in `memory/decisions-log.md` (newest first), and remove that file's `> Fill this in:` prompt now that it has real entries.
+5. **Test it.** Ask the user a question that only their notes can answer (for example, their pricing) to prove the AI now reads from the vault. Cite the note you used.
+6. **Point forward.** Tell them: from now on, use `/ingest` to add new context and `/health` to keep the vault clean.
+
+## Rules
+
+- One question at a time. Do not dump all questions at once.
+- Write real answers only. Never leave a `> Fill this in:` placeholder behind once answered.
+- Do not invent answers. If they skip a question, leave the seed note as-is and move on.
+
+===== END FILE: skills/start-dt.md =====
+
+===== FILE: skills/ingest.md =====
+---
+name: ingest
+description: Turn raw content (a transcript, a voice note, meeting notes, a doc) into structured vault notes. Use when the user says "ingest this", "add this to my vault", or "/ingest" and pastes or points at content.
+---
+
+# /ingest
+
+Take the raw content the user gives you and turn it into atomic notes in this vault. This is the manual version of a context OS: you do the structuring by hand, once.
+
+## Steps
+
+1. **Read the content** the user pasted or pointed you at.
+2. **Find the atomic concepts.** One idea per note. A decision, a process, a fact about the business, a preference.
+3. **Pick the folder** for each: `business/`, `ops/`, or `memory/`. (business/ = facts about the business, ops/ = how you work, memory/ = decisions and things you learn over time)
+4. **Write each note** using the exact frontmatter in `node_template.md`: `name` (kebab-case), `description`, `domain`, `node_type`, `status: emergent`, `last_updated` (today), `tags`, `related_concepts`.
+5. **Link it.** Add `[[wikilinks]]` only to notes that already exist. If you want to link a concept that has no note yet, create a short stub note for it first so nothing dangles. A dangling link will fail /health.
+6. **Save** the files into the chosen folders.
+7. **Log it.** Append a dated one-line entry to `memory/decisions-log.md` naming what you ingested.
+8. **Report** what you created: the file paths and a one-line description each.
+
+## Rules
+
+- Do not summarize the whole thing into one giant note. Split into atomic notes.
+- Do not invent business facts. If the content is unclear, write what is supported and flag the gap.
+- Everything starts `status: emergent`. It becomes `validated` only when the user confirms it in real use.
+- If new information changes or supersedes something already in a note (a price, a policy, a fact), update that note too and log the change, so the vault never holds two conflicting answers.
+
+## Out of scope
+
+This is a starter kit. There is no automatic capture, no search index, and no crystallization, you are doing this by hand each time. When that stops scaling, that is the signal to move to the full system.
+
+===== END FILE: skills/ingest.md =====
+
+===== FILE: skills/health.md =====
+---
+name: health
+description: Check a DT-OS Starter Kit vault for problems - broken [[wikilinks]], orphan notes, missing or malformed frontmatter, and notes that have gone stale. Use when the user says "run health", "check my vault", or "/health".
+---
+
+# /health
+
+Scan every markdown note under `business/`, `ops/`, and `memory/` and report issues. You already have file access through the connected vault (Filesystem connector or Claude Code). Do not require any external tool.
+
+## What to check
+
+1. **Frontmatter present and complete.** Every note must have: `name`, `description`, `domain`, `node_type`, `status`, `last_updated`, `tags`, `related_concepts`. Flag any missing key.
+2. **Wikilinks resolve.** For every `[[link]]`, confirm a note file named `link.md` exists in the vault (under business/, ops/, or memory/). Flag broken links.
+3. **Orphans.** Flag any note with no `[[links]]` out and no other note linking to it.
+4. **Stale.** Flag any note whose `last_updated` is more than 180 days ago.
+
+## Output
+
+Report as three grouped lists: ERRORS (missing frontmatter, broken links), WARNINGS (orphans, stale), and a one-line summary `N notes, X errors, Y warnings`. For each error, name the file and the exact problem, then suggest the one-line fix.
+
+## Do not
+
+- Do not invent fixes to note content. Only report structural issues and suggest the mechanical fix (add the missing key, correct or remove the broken link).
+- Do not touch files unless the user asks you to fix something.
+
+===== END FILE: skills/health.md =====
+
 ------------------------------------------------------------------------
 
-That is the whole kit. Once the files exist: make sure the three skills are loaded (automatic in Claude Code; in Claude Desktop upload the start-dt, ingest, and health SKILL.md files at claude.ai under Skills), then run /start-dt.
+That is the whole kit. To load the three skills: Claude Code has them automatically from `.claude/skills/`. In Claude Desktop, claude.ai, or Codex, upload the visible files `skills/start-dt.md`, `skills/ingest.md`, and `skills/health.md` (not the hidden `.claude` folder) at claude.ai under Skills. Then run /start-dt.
