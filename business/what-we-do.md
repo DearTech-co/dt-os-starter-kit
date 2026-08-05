@@ -11,13 +11,9 @@ related_concepts: ["[[who-we-serve]]", "[[offers-pricing]]"]
 
 # What we do
 
-One sentence: we help [[who-we-serve]] [outcome] by [how].
-
-Example: "We help boutique recruitment firms fill roles faster by turning every past placement into searchable, reusable context."
+We help [[who-we-serve]] turn their business knowledge into AI-ready context.
 
 ## Key points
 
 - The outcome we sell (time, money, or peace of mind).
 - Why us and not a generic tool.
-
-> Fill this in: replace the example with your real one-liner and offer. See [[offers-pricing]].
