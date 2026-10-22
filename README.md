@@ -83,8 +83,8 @@ Keep permission limited to this folder. Codex will ask before it opens anything 
 The Free plan allows 5 files in a ChatGPT Project. Uploading the template and each note separately would be 9 files. This kit puts them in one file so the upload fits.
 
 1. Create a private ChatGPT Project.
-2. Upload `chatgpt-bundle.md` and `AGENTS.md`. The bundle is `node_template.md` plus every note under `business/`, `ops/`, and `memory/`.
-3. Open **Project settings**, then **Project instructions**, and paste the full contents of `AGENTS.md`.
+2. Upload `chatgpt-bundle.md` only. The bundle is `node_template.md` plus every note under `business/`, `ops/`, and `memory/`.
+3. Open **Project settings**, then **Project instructions**, and paste the full contents of `AGENTS.md`. Do not also upload `AGENTS.md`.
 4. Work from the notes in the Project. Cite them by filename.
 
 The bundle in this folder is ready to upload. After you change a note, rebuild it from this folder:

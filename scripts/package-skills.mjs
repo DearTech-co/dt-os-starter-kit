@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Build reproducible upload-ready Claude skill ZIPs with Node.js only.
+// Build upload-ready Claude skill ZIPs with Node.js only.
+// Entries are stored uncompressed so the bytes do not depend on zlib.
 import {
   mkdirSync,
   readFileSync,
@@ -8,7 +9,6 @@ import {
 } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deflateRawSync } from 'node:zlib';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = join(repoRoot, '.claude', 'skills');
@@ -40,8 +40,7 @@ function createZip(entries) {
   for (const entry of entries) {
     const name = Buffer.from(entry.name);
     const content = entry.content || Buffer.alloc(0);
-    const method = entry.directory ? 0 : 8;
-    const compressed = method === 8 ? deflateRawSync(content, { level: 9 }) : content;
+    const method = 0;
     const checksum = crc32(content);
 
     const localHeader = Buffer.alloc(30);
@@ -52,11 +51,11 @@ function createZip(entries) {
     localHeader.writeUInt16LE(dosTime, 10);
     localHeader.writeUInt16LE(dosDate, 12);
     localHeader.writeUInt32LE(checksum, 14);
-    localHeader.writeUInt32LE(compressed.length, 18);
+    localHeader.writeUInt32LE(content.length, 18);
     localHeader.writeUInt32LE(content.length, 22);
     localHeader.writeUInt16LE(name.length, 26);
     localHeader.writeUInt16LE(0, 28);
-    localParts.push(localHeader, name, compressed);
+    localParts.push(localHeader, name, content);
 
     const centralHeader = Buffer.alloc(46);
     centralHeader.writeUInt32LE(0x02014b50, 0);
@@ -67,7 +66,7 @@ function createZip(entries) {
     centralHeader.writeUInt16LE(dosTime, 12);
     centralHeader.writeUInt16LE(dosDate, 14);
     centralHeader.writeUInt32LE(checksum, 16);
-    centralHeader.writeUInt32LE(compressed.length, 20);
+    centralHeader.writeUInt32LE(content.length, 20);
     centralHeader.writeUInt32LE(content.length, 24);
     centralHeader.writeUInt16LE(name.length, 28);
     centralHeader.writeUInt16LE(0, 30);
@@ -78,7 +77,7 @@ function createZip(entries) {
     centralHeader.writeUInt32LE(localOffset, 42);
     centralParts.push(centralHeader, name);
 
-    localOffset += localHeader.length + name.length + compressed.length;
+    localOffset += localHeader.length + name.length + content.length;
   }
 
   const centralSize = centralParts.reduce((size, part) => size + part.length, 0);

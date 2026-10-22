@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
@@ -255,6 +256,7 @@ test('start-dt covers priorities, timestamps, validation, and current setup docs
   assert.match(start, /README\.md/);
   assert.match(start, /run[\s\S]*health/i);
   assert.match(start, /DearTech-OS Starter Kit/);
+  assert.match(start, /remove its placeholder line \(`- \[YYYY-MM-DD\]: \[A decision or lesson worth remembering\.\]`\) and its starter prompt/);
   assert.doesNotMatch(start, /DT-OS/);
 });
 
@@ -286,8 +288,10 @@ test('canonical README provides accurate least-privilege platform paths and smok
   assert.match(readme, /git remote remove origin/);
   assert.match(readme, /cd dt-os-starter-kit/);
   assert.match(readme, /no API keys or accounts/i);
-  assert.match(readme, /chatgpt-bundle\.md/);
-  assert.match(readme, /AGENTS\.md/);
+  assert.match(readme, /Upload `chatgpt-bundle\.md` only/);
+  assert.match(readme, /paste the full contents of `AGENTS\.md`/);
+  assert.match(readme, /Do not also upload `AGENTS\.md`/);
+  assert.doesNotMatch(readme, /Upload `chatgpt-bundle\.md` and `AGENTS\.md`/);
   assert.match(readme, /Free plan allows 5 files/i);
   assert.match(readme, /\[MIT Licence\]\(LICENSE\)/);
   assert.doesNotMatch(readme, /deterministic|SENSE, then ACT, then DEPOSIT|This kit fixes that|deliberately the smallest version/i);
@@ -354,6 +358,7 @@ test('gitignore and CI cover a fresh private copy', () => {
   assert.match(workflow, /npm run validate/);
   assert.match(workflow, /git diff --exit-code dist\//);
   assert.match(workflow, /git diff --exit-code chatgpt-bundle\.md/);
+  assert.match(workflow, /^permissions:\n {2}contents: read$/m);
 });
 
 test('seed notes stay placeholders and the licence covers the kit', () => {
@@ -370,6 +375,8 @@ test('seed notes stay placeholders and the licence covers the kit', () => {
   assert.doesNotMatch(decisions, /see \[\[how-we-do-things\]\]/);
   assert.match(license, /Copyright \(c\) 2026 DearTech LLC/);
   assert.match(license, /Permission is hereby granted/);
+  assert.equal(license.endsWith('\n'), true);
+  assert.equal(license.endsWith('\n\n'), false);
 });
 
 test('chatgpt bundle is reproducible and includes the template and notes', () => {
@@ -409,6 +416,26 @@ test('current-priorities seed note is valid and linked', () => {
   assert.match(priorities, /> Fill this in:/);
 });
 
+const skillZipSha256 = {
+  'health.zip': '28304c42011974c5a09182b7a232e2e28d35f32c27fcb07ac3655c0bbabad69e',
+  'ingest.zip': '55126315119ae9c626b5161adb37bc3b5cfb818f086db64c154c1b34e75e2526',
+  'start-dt.zip': '442d4d8344bf37e3f4ce5a53cedee56f931e1a8229d5f0d73925e42a72f46cba',
+};
+
+function localZipMethods(archive) {
+  const bytes = readFileSync(archive);
+  const methods = [];
+  let offset = 0;
+  while (offset + 30 <= bytes.length && bytes.readUInt32LE(offset) === 0x04034b50) {
+    methods.push(bytes.readUInt16LE(offset + 8));
+    const compressedSize = bytes.readUInt32LE(offset + 18);
+    const nameLength = bytes.readUInt16LE(offset + 26);
+    const extraLength = bytes.readUInt16LE(offset + 28);
+    offset += 30 + nameLength + extraLength + compressedSize;
+  }
+  return methods;
+}
+
 test('upload-ready Claude skill archives contain only the expected skill folder', () => {
   for (const skill of ['start-dt', 'ingest', 'health']) {
     const archive = join(repoRoot, 'dist', 'claude-skills', `${skill}.zip`);
@@ -418,6 +445,11 @@ test('upload-ready Claude skill archives contain only the expected skill folder'
     assert.equal(
       entries.get(`${skill}/SKILL.md`).toString('utf8'),
       read(`.claude/skills/${skill}/SKILL.md`),
+    );
+    assert.deepEqual(localZipMethods(archive), [0, 0], `${skill}.zip is not stored uncompressed`);
+    assert.equal(
+      createHash('sha256').update(readFileSync(archive)).digest('hex'),
+      skillZipSha256[`${skill}.zip`],
     );
   }
 });

@@ -19,7 +19,7 @@ Turn the starter files into a useful business context layer in one sitting. Ask 
    - “What are your two or three most-repeated processes?” → `ops/how-we-do-things.md`
    - “What tools does the business run on?” → `ops/tools-we-use.md`
 3. A completed note contains no bracketed starter slots, `Example:` line, or `> Fill this in:` prompt. Leave a skipped note unchanged.
-4. If at least one note changed, add a newest-first dated entry to `memory/decisions-log.md` describing the setup result. Update the decisions log’s `last_updated` to today and remove its starter prompt.
+4. If at least one note changed, add a newest-first dated entry to `memory/decisions-log.md` describing the setup result. Update the decisions log’s `last_updated` to today and remove its placeholder line (`- [YYYY-MM-DD]: [A decision or lesson worth remembering.]`) and its starter prompt.
 5. Run health. Report any skipped or unfinished notes as warnings; do not describe setup as complete while they remain.
 6. Ask one question whose answer exists only in the vault, answer it with a `[[note-name]]` citation, then point the user to `ingest` and `health`.
 
