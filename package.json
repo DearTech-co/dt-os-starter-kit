@@ -1,7 +1,8 @@
 {
-  "name": "dt-os-business-brain-starter-kit",
+  "name": "dt-os-starter-kit",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -9,7 +10,8 @@
   "scripts": {
     "validate": "node scripts/validate.mjs",
     "package:skills": "node scripts/package-skills.mjs",
-    "pretest": "node scripts/package-skills.mjs",
+    "bundle": "node scripts/bundle-chatgpt.mjs",
+    "pretest": "node scripts/package-skills.mjs && node scripts/bundle-chatgpt.mjs",
     "test": "node --test scripts/validate.test.mjs"
   }
 }

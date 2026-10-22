@@ -1,9 +1,9 @@
 ---
 name: start-dt
-description: Use when setting up this business-brain vault, starting the DT-OS interview, or filling the seed notes for the first time.
+description: Use when setting up this business brain, starting the DearTech-OS Starter Kit interview, or filling the seed notes for the first time.
 ---
 
-# Start DT-OS
+# Start the DearTech-OS Starter Kit
 
 Turn the starter files into a useful business context layer in one sitting. Ask one question at a time.
 

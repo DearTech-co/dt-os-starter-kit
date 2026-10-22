@@ -87,12 +87,17 @@ function readZipEntries(archive) {
 
 test('untouched starter reports incomplete setup warnings without errors', () => {
   const result = runValidator(repoRoot);
+  const unfinished = result.stdout.match(/unfinished starter prompt/g) || [];
 
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /^ERRORS\n- None/m);
+  assert.match(result.stdout, /WARNINGS[\s\S]*business\/what-we-do\.md: unfinished starter prompt/);
   assert.match(result.stdout, /WARNINGS[\s\S]*business\/offers-pricing\.md: unfinished starter prompt/);
   assert.match(result.stdout, /ops\/tools-we-use\.md: unfinished starter prompt/);
-  assert.match(result.stdout, /\d+ notes, 0 errors, \d+ warnings/);
+  assert.match(result.stdout, /memory\/decisions-log\.md: unfinished starter prompt/);
+  assert.equal(unfinished.length, 8);
+  assert.match(result.stdout, /8 notes, 0 errors, 8 warnings/);
+  assert.doesNotMatch(result.stdout, /stale/);
 });
 
 test('completed eight-note vault is clean', (t) => {
@@ -180,6 +185,30 @@ test('validator rejects malformed and unsafe metadata', (t) => {
   assert.match(result.stdout, /filename-does-not-match\.md: name "different-name" does not match filename/);
 });
 
+test('unfilled notes skip the staleness warning and filled notes still get it', (t) => {
+  const root = makeVault();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+
+  writeNote(root, 'business', 'unfilled-note', {
+    lastUpdated: '2020-01-01',
+    related: '["[[filled-note]]"]',
+    body: '# Unfilled\n\n[Your one-liner.]\n\n> Fill this in: replace this prompt.',
+  });
+  writeNote(root, 'business', 'filled-note', {
+    lastUpdated: '2020-01-01',
+    related: '["[[unfilled-note]]"]',
+    body: '# Filled\n\nWe help local bakeries plan the week.',
+  });
+
+  const result = runValidator(root);
+
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /business\/unfilled-note\.md: unfinished starter prompt/);
+  assert.doesNotMatch(result.stdout, /business\/unfilled-note\.md: stale/);
+  assert.match(result.stdout, /business\/filled-note\.md: stale \(last_updated 2020-01-01\)/);
+  assert.doesNotMatch(result.stdout, /business\/filled-note\.md: unfinished starter prompt/);
+});
+
 test('validator reports stale and orphan notes as warnings', (t) => {
   const root = makeVault();
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -205,6 +234,8 @@ test('instructions define confidence, confirmation, safe writes, and secret hand
   assert.match(agents, /update[\s\S]*last_updated/i);
   assert.match(agents, /never store[\s\S]*(password|API key|token)/i);
   assert.match(agents, /only[\s\S]*business\/[\s\S]*ops\/[\s\S]*memory\//i);
+  assert.match(agents, /^# DearTech-OS Starter Kit/m);
+  assert.match(agents, /These slash commands work in Claude and Codex only\./);
 });
 
 test('skills are mirrored and use discoverable trigger descriptions', () => {
@@ -223,6 +254,8 @@ test('start-dt covers priorities, timestamps, validation, and current setup docs
   assert.match(start, /decisions-log[\s\S]*last_updated/i);
   assert.match(start, /README\.md/);
   assert.match(start, /run[\s\S]*health/i);
+  assert.match(start, /DearTech-OS Starter Kit/);
+  assert.doesNotMatch(start, /DT-OS/);
 });
 
 test('ingest treats sources as untrusted data and preserves the vault safely', () => {
@@ -238,13 +271,27 @@ test('health covers complete metadata and starter readiness', () => {
   assert.match(health, /empty/i);
   assert.match(health, /invalid/i);
   assert.match(health, /unfinished starter prompt/i);
+  assert.match(health, /stale after 180 days unless the note still contains a `> Fill this in:` marker/);
 });
 
 test('canonical README provides accurate least-privilege platform paths and smoke test', () => {
   assert.equal(existsSync(join(repoRoot, 'SETUP.md')), false, 'obsolete SETUP.md still exists');
+  assert.equal(existsSync(join(repoRoot, 'docs', 'superpowers')), false, 'internal build notes still exist');
   const readme = read('README.md');
 
-  assert.match(readme, /AI Second Brain for Your Business/);
+  assert.match(readme, /DearTech-OS Starter Kit/);
+  assert.match(readme, /business brain/i);
+  assert.match(readme, /Use this template/);
+  assert.match(readme, /Private/);
+  assert.match(readme, /git remote remove origin/);
+  assert.match(readme, /cd dt-os-starter-kit/);
+  assert.match(readme, /no API keys or accounts/i);
+  assert.match(readme, /chatgpt-bundle\.md/);
+  assert.match(readme, /AGENTS\.md/);
+  assert.match(readme, /Free plan allows 5 files/i);
+  assert.match(readme, /\[MIT Licence\]\(LICENSE\)/);
+  assert.doesNotMatch(readme, /deterministic|SENSE, then ACT, then DEPOSIT|This kit fixes that|deliberately the smallest version/i);
+  assert.doesNotMatch(readme, /—/);
   assert.match(readme, /Claude Desktop/);
   assert.match(readme, /Claude Cowork/);
   assert.match(readme, /Use an existing folder/);
@@ -259,6 +306,98 @@ test('canonical README provides accurate least-privilege platform paths and smok
   assert.match(readme, /never store[\s\S]*(password|API key|token)/i);
   assert.doesNotMatch(readme, /administrativetrick|obsidian-mcp|claude_desktop_config\.json/i);
   assert.doesNotMatch(readme, /trusted local-files extension/i);
+});
+
+test('the kit uses one display name and one slug', () => {
+  for (const file of [
+    'README.md',
+    'AGENTS.md',
+    'CLAUDE.md',
+    'package.json',
+    'scripts/validate.mjs',
+    '.claude/skills/start-dt/SKILL.md',
+    'memory/decisions-log.md',
+  ]) {
+    assert.doesNotMatch(
+      read(file),
+      /DT-OS|dt-os-business-brain|Business Brain Starter/,
+      file,
+    );
+  }
+  assert.match(read('package.json'), /"name": "dt-os-starter-kit"/);
+  assert.match(read('README.md'), /^# DearTech-OS Starter Kit/m);
+  assert.match(read('scripts/validate.mjs'), /DearTech-OS Starter Kit \(dt-os-starter-kit\)/);
+});
+
+test('gitignore and CI cover a fresh private copy', () => {
+  const ignore = read('.gitignore');
+  for (const line of [
+    'node_modules/',
+    '.DS_Store',
+    '.obsidian/workspace*.json',
+    '.obsidian/cache',
+    '*.log',
+    '.env*',
+  ]) {
+    assert.match(ignore, new RegExp(`^${line.replace(/[.*]/g, '\\$&')}$`, 'm'));
+  }
+
+  const workflow = read('.github/workflows/test.yml');
+  assert.match(workflow, /push:/);
+  assert.match(workflow, /pull_request:/);
+  assert.match(workflow, /node-version: \[18, 20, 22\]/);
+  assert.match(workflow, /actions\/checkout@v4/);
+  assert.match(workflow, /actions\/setup-node@v4/);
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm install/);
+  assert.match(workflow, /npm test/);
+  assert.match(workflow, /npm run validate/);
+  assert.match(workflow, /git diff --exit-code dist\//);
+  assert.match(workflow, /git diff --exit-code chatgpt-bundle\.md/);
+});
+
+test('seed notes stay placeholders and the licence covers the kit', () => {
+  const whatWeDo = read('business/what-we-do.md');
+  const decisions = read('memory/decisions-log.md');
+  const license = read('LICENSE');
+
+  assert.match(whatWeDo, /\[outcome\]/);
+  assert.match(whatWeDo, /> Fill this in:/);
+  assert.doesNotMatch(whatWeDo, /AI-ready context/);
+  assert.match(decisions, /\[YYYY-MM-DD\]/);
+  assert.match(decisions, /> Fill this in:/);
+  assert.doesNotMatch(decisions, /Set up the DT-OS/);
+  assert.doesNotMatch(decisions, /see \[\[how-we-do-things\]\]/);
+  assert.match(license, /Copyright \(c\) 2026 DearTech LLC/);
+  assert.match(license, /Permission is hereby granted/);
+});
+
+test('chatgpt bundle is reproducible and includes the template and notes', () => {
+  const bundler = join(repoRoot, 'scripts', 'bundle-chatgpt.mjs');
+  const bundlePath = join(repoRoot, 'chatgpt-bundle.md');
+  const before = readFileSync(bundlePath);
+  const result = spawnSync(process.execPath, [bundler], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.deepEqual(readFileSync(bundlePath), before, 'chatgpt-bundle.md drifted from the generator');
+  const bundle = before.toString('utf8');
+  for (const relativePath of [
+    'node_template.md',
+    'business/what-we-do.md',
+    'business/who-we-serve.md',
+    'business/offers-pricing.md',
+    'business/voice-and-tone.md',
+    'business/current-priorities.md',
+    'ops/how-we-do-things.md',
+    'ops/tools-we-use.md',
+    'memory/decisions-log.md',
+  ]) {
+    assert.ok(bundle.includes(`## ${relativePath}`), `missing heading for ${relativePath}`);
+    assert.ok(bundle.includes(read(relativePath).trim()), `missing contents of ${relativePath}`);
+  }
 });
 
 test('current-priorities seed note is valid and linked', () => {
@@ -285,6 +424,9 @@ test('upload-ready Claude skill archives contain only the expected skill folder'
 
 test('skill packager needs only Node and produces reproducible archives', () => {
   const packageJson = JSON.parse(read('package.json'));
+  assert.equal(packageJson.name, 'dt-os-starter-kit');
+  assert.equal(packageJson.license, 'MIT');
+  assert.equal(packageJson.scripts.bundle, 'node scripts/bundle-chatgpt.mjs');
   assert.equal(packageJson.scripts.test, 'node --test scripts/validate.test.mjs');
 
   const environment = { ...process.env, PATH: '' };

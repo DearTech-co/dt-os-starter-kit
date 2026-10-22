@@ -11,8 +11,8 @@ related_concepts: ["[[how-we-do-things]]"]
 
 # Decisions log
 
-Newest first. The AI appends here when it learns something durable (see [[how-we-do-things]]).
+Newest first. The AI adds a dated line here when it learns something durable about the business.
 
-- 2026-07-02: Set up the DT-OS Starter Kit.
+- [YYYY-MM-DD]: [A decision or lesson worth remembering.]
 
 > Fill this in: as you work, add dated one-liners for decisions you want your AI to remember.
