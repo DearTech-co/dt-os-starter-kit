@@ -15,7 +15,7 @@ Run a read-only integrity and readiness check over every Markdown note under `bu
    - `name` is kebab-case, unique, and matches the filename.
    - `domain` matches the containing folder.
    - `node_type` and `status` use values allowed by `node_template.md`.
-   - `last_updated` is a real `YYYY-MM-DD` date, is not in the future, and is flagged stale after 180 days.
+   - `last_updated` is a real `YYYY-MM-DD` date, is not in the future, and is flagged stale after 180 days unless the note still contains a `> Fill this in:` marker.
    - `tags` and `related_concepts` are arrays.
    - Every `[[wikilink]]` resolves to a unique note filename.
    - Every `> Fill this in:` marker is an unfinished starter prompt.

@@ -1,6 +1,6 @@
-# DT-OS Business Brain Starter Kit
+# DearTech-OS Starter Kit
 
-This folder is an AI Second Brain for Your Business: a local, single-user context layer in plain Markdown.
+This folder is a business brain for one person: local notes in plain Markdown.
 
 ## How to use this vault (for the AI)
 
@@ -22,6 +22,8 @@ Every answer about the business follows: SENSE, then ACT, then DEPOSIT.
 - If you are unsure whether something is true, say so; do not invent business facts.
 
 ## Commands
+
+These slash commands work in Claude and Codex only. They do not run in ChatGPT.
 
 - `/start-dt` - set this vault up from scratch by interview.
 - `/ingest` - turn a transcript or note into structured notes.

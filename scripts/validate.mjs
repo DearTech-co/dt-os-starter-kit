@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Zero-dependency structural check for the DT-OS Starter Kit vault.
+// Structural check for the DearTech-OS Starter Kit (dt-os-starter-kit).
 import { lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { join, basename, extname, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,8 +60,8 @@ function frontmatter(text) {
 }
 
 // Extract wikilink targets ([[foo]], [[foo|alias]], [[foo#heading]] -> "foo").
-// Intentionally scans the whole note: [[wikilinks]] are real body links in an
-// Obsidian vault, and related_concepts links in frontmatter must validate too.
+// Scans the whole note: [[wikilinks]] in the body are real links, and
+// related_concepts links in frontmatter must validate too.
 function extractLinks(text) {
   return [...text.matchAll(/\[\[([^\]|#]+)/g)].map((m) => m[1].trim());
 }
@@ -147,7 +147,7 @@ for (const f of files) {
         errors.push(`${rel}: invalid last_updated "${fm.last_updated}"`);
       } else if (fm.last_updated > today) {
         errors.push(`${rel}: future last_updated "${fm.last_updated}"`);
-      } else {
+      } else if (!/>\s*Fill this in:/i.test(parsed.body)) {
         const age = (Date.now() - new Date(`${fm.last_updated}T00:00:00Z`).getTime()) / 86400000;
         if (age > STALE_DAYS) warnings.push(`${rel}: stale (last_updated ${fm.last_updated})`);
       }
